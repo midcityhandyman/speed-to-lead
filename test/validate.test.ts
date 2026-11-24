@@ -41,3 +41,15 @@ test("non-object bodies are rejected", () => {
     assert.ok(!result.ok);
   }
 });
+
+test("one usable contact is enough: a mistyped second contact is dropped, not fatal", () => {
+  const badPhone = validateLead({ name: "Riley Demo", phone: "555-01", email: "riley@example.com" });
+  assert.ok(badPhone.ok);
+  assert.equal(badPhone.lead.phone, undefined);
+  assert.equal(badPhone.lead.email, "riley@example.com");
+
+  const badEmail = validateLead({ name: "Riley Demo", phone: "555-555-0107", email: "riley@" });
+  assert.ok(badEmail.ok);
+  assert.equal(badEmail.lead.phone, "5555550107");
+  assert.equal(badEmail.lead.email, undefined);
+});

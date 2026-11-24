@@ -32,6 +32,8 @@ export function summarize(records: readonly LeadRecord[], slaMs: number): Metric
 
   const ttfr = records.flatMap((r) => (r.timeToFirstResponseMs === undefined ? [] : [r.timeToFirstResponseMs]));
   const within = ttfr.filter((ms) => ms <= slaMs).length;
+  // A lead whose first response never went out is a miss, not a gap in the data.
+  const owedResponse = ttfr.length + byStatus.failed;
 
   return {
     slaMs,
@@ -42,7 +44,7 @@ export function summarize(records: readonly LeadRecord[], slaMs: number): Metric
       medianMs: median(ttfr),
       p90Ms: percentile(ttfr, 90),
       maxMs: ttfr.length ? Math.max(...ttfr) : null,
-      withinSlaPct: ttfr.length ? (100 * within) / ttfr.length : null,
+      withinSlaPct: owedResponse ? (100 * within) / owedResponse : null,
     },
     steps: STEPS.map((step) => {
       const durations = records.flatMap((r) => r.timings.filter((t) => t.step === step).map((t) => t.durationMs));
@@ -90,7 +92,7 @@ table{border-collapse:collapse;width:100%;margin:.5rem 0 1.5rem}
 th,td{text-align:left;padding:6px 10px;border-bottom:1px solid #e3e7ec}
 </style></head><body>
 <h1>Speed to lead</h1>
-<p>Time to first response is measured from webhook receipt to confirmed send. Target: ${esc(formatMs(summary.slaMs))}.</p>
+<p>Time to first response is measured from webhook receipt to confirmed send. Target: ${esc(formatMs(summary.slaMs))}. Failed sends count as misses in "within target".</p>
 <div class="cards">
 ${card("median time to first response", formatMs(fr.medianMs))}
 ${card("p90 time to first response", formatMs(fr.p90Ms))}

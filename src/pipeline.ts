@@ -32,9 +32,9 @@ const PROMISE: Record<Tier, string> = {
 
 export function firstResponse(leadId: string, lead: Lead, tier: Tier, assignment: Assignment): OutboundMessage {
   const firstName = lead.name.split(/\s+/)[0] ?? lead.name;
-  const body =
-    `Hi ${firstName}, thanks for your ${lead.service} request. We have it. ` +
-    `${assignment.ownerName} ${PROMISE[tier]}. Reply here if anything changes.`;
+  // A queue is not a person: no named owner and no fast callback promise.
+  const who = assignment.queued ? `Our team ${PROMISE.cold}` : `${assignment.ownerName} ${PROMISE[tier]}`;
+  const body = `Hi ${firstName}, thanks for your ${lead.service} request. We have it. ${who}. Reply here if anything changes.`;
   return lead.phone
     ? { leadId, via: "sms", to: lead.phone, body }
     : { leadId, via: "email", to: lead.email ?? "", body };
@@ -86,6 +86,8 @@ export class Pipeline {
       record.withinSla = record.timeToFirstResponseMs <= config.slaMs;
     } catch (error) {
       record.status = "failed";
+      // Nobody was answered, so a resubmit must not be suppressed as a duplicate.
+      this.deduper.forget(record.id);
       record.errors = [error instanceof Error ? error.message : String(error)];
     }
     return store.save(record);

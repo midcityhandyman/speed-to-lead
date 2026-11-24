@@ -20,11 +20,22 @@ export class Deduper {
   /** Returns the id of the original lead, or undefined after registering this one. */
   check(lead: Lead, id: string, now: number): string | undefined {
     const keys = Deduper.keys(lead);
-    for (const key of keys) {
+    const live = (key: string) => {
       const hit = this.seen.get(key);
-      if (hit && now - hit.at <= this.windowMs) return hit.id;
+      return hit && now - hit.at <= this.windowMs ? hit : undefined;
+    };
+    const original = keys.map(live).find((hit) => hit !== undefined);
+    if (original) {
+      // A repeat that adds a new phone or email ties that contact to the original too.
+      for (const key of keys) if (!live(key)) this.seen.set(key, original);
+      return original.id;
     }
     for (const key of keys) this.seen.set(key, { id, at: now });
     return undefined;
+  }
+
+  /** Drops every key registered for a lead. Used when its first response never went out. */
+  forget(id: string): void {
+    for (const [key, hit] of this.seen) if (hit.id === id) this.seen.delete(key);
   }
 }

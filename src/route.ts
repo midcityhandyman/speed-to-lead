@@ -46,6 +46,8 @@ export class Router {
 
   private take(owner: Owner, reason: string): Assignment {
     this.load.set(owner.id, this.count(owner) + 1);
-    return { ownerId: owner.id, ownerName: owner.name, reason };
+    const assignment: Assignment = { ownerId: owner.id, ownerName: owner.name, reason };
+    if (owner === this.config.nurtureQueue) assignment.queued = true;
+    return assignment;
   }
 }

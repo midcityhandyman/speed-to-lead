@@ -2,7 +2,7 @@
   "name": "speed-to-lead",
   "version": "0.1.0",
   "private": true,
-  "description": "Lead intake service: validate, dedupe, score, route and send a first response in under 60 seconds, with timing for every step.",
+  "description": "Lead intake service: validate, dedupe, score, route and send a first response through a mock channel, timing every step against a 60 second target.",
   "type": "module",
   "engines": { "node": ">=20" },
   "scripts": {

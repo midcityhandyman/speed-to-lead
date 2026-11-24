@@ -38,6 +38,8 @@ export interface Assignment {
   ownerId: string;
   ownerName: string;
   reason: string;
+  /** True when the lead went to the nurture queue instead of a named owner. */
+  queued?: boolean;
 }
 
 export interface OutboundMessage {

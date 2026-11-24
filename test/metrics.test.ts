@@ -61,3 +61,14 @@ test("metrics page shows the headline numbers and escapes content", () => {
   assert.ok(!html.includes("lead_<b>"));
   assert.equal(formatMs(0.5), "0.50 ms");
 });
+
+test("failed sends count as misses in the within target percentage", () => {
+  const records: LeadRecord[] = [
+    responded("lead_0001", 2000),
+    { id: "lead_0002", receivedAt: 0, status: "failed", timings: [] },
+  ];
+  const s = summarize(records, 60_000);
+  assert.equal(s.firstResponse.count, 1);
+  assert.equal(s.firstResponse.withinSlaPct, 50);
+  assert.equal(summarize([records[1]!], 60_000).firstResponse.withinSlaPct, 0);
+});

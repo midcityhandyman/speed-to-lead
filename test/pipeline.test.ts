@@ -82,3 +82,22 @@ test("slow send is flagged as outside the 60 second target", async () => {
   assert.equal(record.status, "responded");
   assert.equal(record.withinSla, false);
 });
+
+test("failed lead can resubmit: it was never answered, so it is not a duplicate", async () => {
+  const { pipeline, channel } = harness({ failFirst: 2 });
+  assert.equal((await pipeline.handle(good)).status, "failed");
+  const retry = await pipeline.handle(good);
+  assert.equal(retry.status, "responded");
+  assert.equal(retry.duplicateOf, undefined);
+  assert.equal(channel.sent.length, 1);
+});
+
+test("out of area lead gets a queue reply with no named owner or fast callback promise", async () => {
+  const { pipeline, channel } = harness();
+  const record = await pipeline.handle({ ...good, postalCode: "99801" });
+  assert.equal(record.score?.tier, "hot");
+  assert.equal(record.assignment?.queued, true);
+  const body = channel.sent[0]?.body ?? "";
+  assert.match(body, /Our team will follow up by the next business day/);
+  assert.doesNotMatch(body, /Nurture Queue|15 minutes/);
+});

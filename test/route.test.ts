@@ -43,3 +43,11 @@ test("deduper matches on phone or email inside the window only", () => {
   assert.equal(dedupe.check(lead({ phone: "5555550101" }), "lead_4", 60_001), undefined);
   assert.equal(dedupe.check(lead({ phone: "5555550150" }), "lead_5", 3000), undefined);
 });
+
+test("a repeat that adds a new contact ties that contact to the original lead", () => {
+  const dedupe = new Deduper(60_000);
+  dedupe.check(lead({ phone: "5555550101" }), "lead_1", 0);
+  assert.equal(dedupe.check(lead({ phone: "5555550101", email: "b@example.com" }), "lead_2", 1000), "lead_1");
+  assert.equal(dedupe.check(lead({ email: "b@example.com" }), "lead_3", 2000), "lead_1");
+  assert.equal(dedupe.check(lead({ email: "b@example.com" }), "lead_4", 60_001), undefined);
+});

@@ -27,13 +27,16 @@ export function validateLead(raw: unknown): ValidationResult {
 
   const rawPhone = text(input.phone, 40);
   const phone = rawPhone ? normalizePhone(rawPhone) : undefined;
-  if (rawPhone && !phone) errors.push("phone must have 10 digits");
 
   const rawEmail = text(input.email, 200).toLowerCase();
   const email = rawEmail && EMAIL.test(rawEmail) ? rawEmail : undefined;
-  if (rawEmail && !email) errors.push("email is not valid");
 
-  if (!rawPhone && !rawEmail) errors.push("phone or email is required");
+  // One usable contact is enough to reply, so a mistyped second one does not cost the lead.
+  if (!phone && !email) {
+    if (rawPhone) errors.push("phone must have 10 digits");
+    if (rawEmail) errors.push("email is not valid");
+    if (!rawPhone && !rawEmail) errors.push("phone or email is required");
+  }
 
   let budget: number | undefined;
   if (input.budget !== undefined && input.budget !== null && input.budget !== "") {
