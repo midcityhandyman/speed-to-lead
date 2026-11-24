@@ -1,0 +1,58 @@
+speed-to-lead offline simulation (synthetic leads, virtual clock, seeded mock channel)
+
+lead       status      tier       service     owner           response   target
+---------  ----------  ---------  ----------  --------------  ---------  ------
+lead_0001  responded   warm 30    gutters     Dana Stubman    2.6 s      ok
+lead_0002  responded   warm 35    gutters     Dana Stubman    1.5 s      ok
+lead_0003  responded   hot 80     gutters     Dana Stubman    7.3 s      ok
+lead_0004  responded   warm 45    bathroom    Robin Fixture   9.6 s      ok
+lead_0005  responded   warm 55    bathroom    Sky Mockwell    6.7 s      ok
+lead_0006  rejected                                                      phone or email is required
+lead_0007  responded   warm 55    bathroom    Robin Fixture   5.7 s      ok
+lead_0008  responded   hot 80     kitchen     Robin Fixture   2.6 s      ok
+lead_0009  responded   hot 65     gutters     Dana Stubman    6.8 s      ok
+lead_0010  duplicate              gutters                                duplicate of lead_0009
+lead_0011  responded   warm 50    roofing     Sky Mockwell    2.5 s      ok
+lead_0012  responded   warm 35    gutters     Dana Stubman    11.4 s     ok
+lead_0013  responded   warm 35    gutters     Dana Stubman    5.7 s      ok
+lead_0014  responded   hot 80     roofing     Sky Mockwell    86.1 s     MISSED
+lead_0015  responded   hot 65     roofing     Nurture Queue   3.5 s      ok
+lead_0016  responded   warm 55    bathroom    Robin Fixture   2.0 s      ok
+lead_0017  responded   warm 55    roofing     Sky Mockwell    8.3 s      ok
+lead_0018  rejected                                                      phone must have 10 digits
+lead_0019  responded   hot 60     roofing     Sky Mockwell    6.8 s      ok
+lead_0020  duplicate              roofing                                duplicate of lead_0019
+lead_0021  responded   warm 55    plumbing    Sky Mockwell    48.0 s     ok
+lead_0022  responded   warm 50    painting    Dana Stubman    8.4 s      ok
+lead_0023  responded   warm 50    gutters     Dana Stubman    1.2 s      ok
+lead_0024  responded   warm 45    roofing     Sky Mockwell    4.1 s      ok
+lead_0025  responded   hot 65     gutters     Dana Stubman    3.3 s      ok
+lead_0026  responded   cold 25    gutters     Dana Stubman    3.9 s      ok
+lead_0027  responded   warm 40    gutters     Dana Stubman    11.3 s     ok
+lead_0028  responded   warm 30    kitchen     Robin Fixture   9.9 s      ok
+lead_0029  duplicate              kitchen                                duplicate of lead_0028
+
+Why lead_0003 scored 80 (hot):
+  +15  has_phone: Phone number provided
+   +5  has_email: Email provided
+  +25  urgent_language: Message uses urgent wording
+  +15  in_service_area: Postal code is inside the service area
+  +15  budget_5k_plus: Stated budget of 5000 or more
+   +5  detailed_message: Message has 40 or more characters
+Routed to Dana Stubman: generalist who takes hot leads
+First response (sms): "Hi Alex, thanks for your gutters request. We have it. Dana Stubman will call you within 15 minutes. Reply here if anything changes."
+
+Summary
+  leads received            29
+  responded                 24
+  duplicates suppressed     3
+  rejected (invalid)        2
+  failed                    0
+  messages sent             24
+  median first response     6.2 s
+  p90 first response        11.4 s
+  slowest first response    86.1 s
+  within 60.0 s target      96%
+
+Note: latency here is simulated by the mock channel. These numbers show the
+measurement working, not the speed of any real provider.

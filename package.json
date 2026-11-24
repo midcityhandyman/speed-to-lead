@@ -1,0 +1,19 @@
+{
+  "name": "speed-to-lead",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lead intake service: validate, dedupe, score, route and send a first response in under 60 seconds, with timing for every step.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "demo": "tsx demo/simulate.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/validate.test.ts test/score.test.ts test/route.test.ts test/metrics.test.ts test/pipeline.test.ts test/server.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
